@@ -2,15 +2,17 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Apache Spark 3.5.0](https://img.shields.io/badge/Apache%20Spark-3.5.0-orange.svg)](https://spark.apache.org/)
+[![NVIDIA CUDA](https://img.shields.io/badge/NVIDIA%20CUDA-Hardware%20Accelerated-76B900.svg)](https://developer.nvidia.com/cuda-zone)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.55.0-FF4B4B.svg)](https://streamlit.io/)
-[![pytest](https://img.shields.io/badge/pytest-74%20passed-brightgreen.svg)](https://docs.pytest.org/)
+[![pytest](https://img.shields.io/badge/pytest-82%20passed-brightgreen.svg)](https://docs.pytest.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 An end-to-end academic and data engineering project for **Parallel and Distributed Systems Laboratory (PDS Lab)**. This project implements a comprehensive public health monitoring pipeline analyzing real-world epidemiological data (COVID-19 India dataset: 18,110+ state records, 16,330+ testing records, and 7,630+ vaccination records).
 
-The system integrates **two core laboratory concepts**:
+The system integrates **three core laboratory concepts**:
 1. **Multithreading** (`concurrent.futures.ThreadPoolExecutor`) for parallel, embarrassingly parallel per-state data preprocessing, rolling average computation, and Z-score statistical anomaly detection.
 2. **Distributed Data Processing** (`Apache Spark / PySpark 3.5.0`) for large-scale distributed aggregations, window operations, and multi-state outbreak metric rollups.
+3. **GPU Hardware Acceleration (CUDA / SIMT)** (`XGBoost Hist / CUDA Cores`) for high-throughput multi-lag temporal regression, wave projection, and head-to-head CPU vs GPU execution profiling.
 
 **GitHub Repository:** [https://github.com/RHarishKarthic/PDS_LAB](https://github.com/RHarishKarthic/PDS_LAB)
 

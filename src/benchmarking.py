@@ -65,9 +65,10 @@ def run_benchmarks(
     max_workers: int = 4,
     spark_cfg: Optional[Dict[str, str]] = None,
     output_dir: str = "outputs/benchmarks",
+    include_gpu: bool = True,
 ) -> pd.DataFrame:
     """
-    Benchmark sequential, multithreaded, and Spark implementations.
+    Benchmark sequential, multithreaded, Spark, and GPU implementations.
 
     Parameters
     ----------
@@ -176,17 +177,48 @@ def run_benchmarks(
     )
 
     # ------------------------------------------------------------------ #
+    # GPU Hardware Acceleration (NVIDIA CUDA)                             #
+    # ------------------------------------------------------------------ #
+    gpu_times = []
+    gpu_impl_name = "GPU (CUDA)"
+    if include_gpu:
+        try:
+            from src.gpu_processor import is_gpu_available, run_gpu, get_gpu_info
+            gpu_info = get_gpu_info()
+            if gpu_info["available"]:
+                gpu_impl_name = f"GPU ({gpu_info['name']})"
+                logger.info("Benchmarking GPU [%s] (%d runs)...", gpu_info["name"], runs)
+                for i in range(runs):
+                    _, elapsed, peak_kb = _timed_run(run_gpu, raw_dir)
+                    records.append({
+                        "Implementation": gpu_impl_name,
+                        "Run": i + 1,
+                        "ElapsedSeconds": round(elapsed, 4),
+                        "PeakMemoryKB": round(peak_kb, 1),
+                    })
+                    gpu_times.append(elapsed)
+                    logger.info("  GPU run %d: %.3f s", i + 1, elapsed)
+            else:
+                logger.info("GPU hardware acceleration skipped (no CUDA device found).")
+        except Exception as e:
+            logger.warning("GPU benchmark execution failed: %s", e)
+
+    # ------------------------------------------------------------------ #
     # Build results DataFrame                                              #
     # ------------------------------------------------------------------ #
     df_runs = pd.DataFrame(records)
 
     # Summary statistics
     summary_rows = []
-    for impl, times in [
+    targets = [
         ("Sequential (pandas)", seq_times),
         (f"Multithreaded ({max_workers} workers)", thr_times),
         ("Spark (local[*])", [t for t in spark_times if t is not None]),
-    ]:
+    ]
+    if gpu_times:
+        targets.append((gpu_impl_name, gpu_times))
+
+    for impl, times in targets:
         if times:
             med = sorted(times)[len(times) // 2]
             speedup = round(seq_median / med, 3) if med and seq_median else None

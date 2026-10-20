@@ -38,6 +38,7 @@ PALETTE = {
     "threaded": "#2A9D8F",
     "spark": "#E9C46A",
     "anomaly": "#E63946",
+    "gpu": "#9B5DE5",
 }
 
 
@@ -303,6 +304,49 @@ def plot_testing_heatmap(
     ax.set_ylabel("")
     fname = f"testing_heatmap_{state.lower().replace(' ', '_')}.png"
     return _save(fig, os.path.join(out_dir, fname))
+
+
+# ---------------------------------------------------------------------------
+# 9. GPU Outbreak Forecasting Chart
+# ---------------------------------------------------------------------------
+
+def plot_gpu_forecast(
+    eval_df: pd.DataFrame,
+    forecast_df: pd.DataFrame,
+    state: str,
+    metrics: Optional[dict] = None,
+    out_dir: str = "outputs/charts",
+) -> str:
+    """Generate high-resolution chart of GPU outbreak forecast."""
+    fig, ax = plt.subplots(figsize=(13, 6))
+
+    # Actual historical
+    ax.plot(eval_df["Date"], eval_df["ActualDailyNewCases"], color="#264653",
+            label="Actual Daily Cases", linewidth=2.0, alpha=0.9)
+    # Model predicted on test set
+    ax.plot(eval_df["Date"], eval_df["PredictedDailyNewCases"], color="#E76F51",
+            label="GPU Model Fitted (Holdout)", linewidth=2.0, linestyle="--")
+
+    # Multi-step future forecast
+    if not forecast_df.empty:
+        ax.plot(forecast_df["Date"], forecast_df["ProjectedDailyNewCases"], color="#9B5DE5",
+                label=f"GPU {len(forecast_df)}-Day Forward Projection", linewidth=2.5, marker="o", markersize=4)
+
+    metrics_str = ""
+    if metrics:
+        metrics_str = f" [R²={metrics.get('r2', 0):.2f}, RMSE={metrics.get('rmse', 0):.0f}, MAE={metrics.get('mae', 0):.0f}]"
+
+    ax.set_title(f"GPU Outbreak Forecasting — {state} (NVIDIA CUDA Acceleration){metrics_str}", fontsize=13, fontweight="bold")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Daily New Cases")
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+    fig.autofmt_xdate()
+    ax.legend(loc="upper left")
+
+    fname = f"gpu_forecast_{state.lower().replace(' ', '_')}.png"
+    return _save(fig, os.path.join(out_dir, fname))
+
 
 
 # ---------------------------------------------------------------------------

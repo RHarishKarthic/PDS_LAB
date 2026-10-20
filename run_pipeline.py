@@ -46,8 +46,10 @@ def main():
                         help="Run performance benchmarks")
     parser.add_argument("--spark", action="store_true",
                         help="Run Spark analysis")
+    parser.add_argument("--gpu", action="store_true",
+                        help="Run GPU-accelerated outbreak modeling and forecasting")
     parser.add_argument("--all", dest="run_all", action="store_true",
-                        help="Run benchmark + Spark")
+                        help="Run benchmark + Spark + GPU")
     parser.add_argument("--state", default=None,
                         help="Override focus state (default: Tamil Nadu)")
     args = parser.parse_args()
@@ -208,6 +210,35 @@ def main():
             logger.error("Spark analysis failed: %s", e)
 
     # ------------------------------------------------------------------ #
+    # Stage 7.5: GPU Outbreak Forecasting (optional / --all)              #
+    # ------------------------------------------------------------------ #
+    gpu_result = None
+    if args.gpu or args.run_all:
+        logger.info("Stage 7.5: Running GPU Outbreak Modeling & Forecasting (Focus: %s)", focus_state)
+        try:
+            from src.gpu_processor import run_gpu
+            from src.visualization import plot_gpu_forecast
+            gpu_result = run_gpu(raw_dir=raw_dir, rolling_window=rolling_window, focus_state=focus_state)
+            fc_data = gpu_result["forecasting"]
+            fc_csv = os.path.join(out_reports, f"gpu_forecast_{focus_state.lower().replace(' ', '_')}.csv")
+            fc_data["forecast_df"].to_csv(fc_csv, index=False)
+            eval_csv = os.path.join(out_reports, f"gpu_eval_{focus_state.lower().replace(' ', '_')}.csv")
+            fc_data["evaluation_df"].to_csv(eval_csv, index=False)
+            plot_gpu_forecast(
+                fc_data["evaluation_df"],
+                fc_data["forecast_df"],
+                focus_state,
+                metrics=fc_data["metrics"],
+                out_dir=charts_dir,
+            )
+            logger.info(
+                "GPU modeling completed in %.2f s (Device: %s)",
+                gpu_result["elapsed_seconds"], gpu_result["target_device"].upper()
+            )
+        except Exception as e:
+            logger.error("GPU modeling failed: %s", e)
+
+    # ------------------------------------------------------------------ #
     # Stage 8: Benchmarking (optional)                                     #
     # ------------------------------------------------------------------ #
     benchmark_summary = None
@@ -225,6 +256,7 @@ def main():
                 "log_level": cfg["spark"]["log_level"],
             } if (args.spark or args.run_all) else {},
             output_dir=benchmarks_dir,
+            include_gpu=(args.gpu or args.run_all),
         )
         # Regenerate benchmark charts
         from src.visualization import plot_benchmark
