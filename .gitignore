@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Spark temporary files
+derby.log
+metastore_db/
+spark-warehouse/
+
+# Generated outputs (large files — regenerate with run_pipeline.py)
+data/processed/
+outputs/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dataset files (too large for git — see README for download instructions)
+data/raw/*.csv

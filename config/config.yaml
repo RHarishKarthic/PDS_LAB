@@ -1,0 +1,42 @@
+# ============================================================
+# Public Health Outbreak Monitoring — Configuration
+# ============================================================
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  cases_file: "covid_19_india.csv"
+  testing_file: "StatewiseTestingDetails.csv"
+  vaccine_file: "covid_vaccine_statewise.csv"
+
+analysis:
+  focus_state: "Tamil Nadu"
+  rolling_window: 7          # days for rolling average
+  anomaly_zscore_threshold: 2.5
+  min_date: null             # null means use earliest available
+  max_date: null             # null means use latest available
+
+spark:
+  app_name: "PublicHealthOutbreakMonitoring"
+  master: "local[*]"         # use all local cores
+  driver_memory: "2g"
+  log_level: "WARN"
+
+threading:
+  max_workers: 4             # for ThreadPoolExecutor
+
+benchmarking:
+  runs: 3                    # number of repeated benchmark runs
+  output_file: "outputs/benchmarks/benchmark_results.csv"
+
+outputs:
+  charts_dir: "outputs/charts"
+  reports_dir: "outputs/reports"
+  benchmarks_dir: "outputs/benchmarks"
+  cleaned_cases: "data/processed/cleaned_cases.csv"
+  cleaned_testing: "data/processed/cleaned_testing.csv"
+  cleaned_vaccine: "data/processed/cleaned_vaccine.csv"
+
+logging:
+  level: "INFO"
+  file: "outputs/reports/pipeline.log"
