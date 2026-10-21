@@ -29,16 +29,9 @@ derby.log
 metastore_db/
 spark-warehouse/
 
-# Generated outputs (large files — regenerate with run_pipeline.py)
-data/processed/
-outputs/
-
 # Logs
 *.log
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Dataset files (too large for git — see README for download instructions)
-data/raw/*.csv

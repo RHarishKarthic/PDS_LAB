@@ -1,0 +1,4 @@
+Dataset,Rows,Columns,Date Range Start,Date Range End,Missing Values (%),Duplicate Rows Removed
+Cases,18046,16,2020-01-30,2021-08-11,0.0,Yes (per State+Date)
+Testing,16335,13,2020-04-01,2021-08-10,14.46,Yes (per State+Date)
+Vaccine,7633,31,2021-01-16,2021-08-16,27.02,Yes (per State+Date)
